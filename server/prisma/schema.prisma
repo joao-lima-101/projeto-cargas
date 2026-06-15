@@ -1,0 +1,91 @@
+generator client {
+  provider      = "prisma-client-js"
+  binaryTargets = ["native", "windows"]
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model contato {
+  id_cont        Int            @id @default(autoincrement())
+  id_transp      Int
+  telefone       String?        @db.VarChar(20)
+  email          String         @db.VarChar(255)
+  transportadora transportadora @relation(fields: [id_transp], references: [id_transp], onDelete: Cascade, onUpdate: Restrict, map: "fk_contato_transp")
+
+  @@index([id_transp], map: "fk_contato_transp")
+}
+
+model endereco {
+  id_end         Int            @id @default(autoincrement())
+  id_transp      Int
+  cep            String         @db.Char(8)
+  bairro         String         @db.VarChar(150)
+  numero         String?        @db.VarChar(10)
+  complemento    String?        @db.VarChar(50)
+  cidade         String         @db.VarChar(80)
+  estado         String         @db.Char(2)
+  transportadora transportadora @relation(fields: [id_transp], references: [id_transp], onDelete: Cascade, onUpdate: Restrict, map: "fk_endereco_transp")
+
+  @@index([id_transp], map: "fk_endereco_transp")
+}
+
+model transportadora {
+  id_transp          Int        @id @default(autoincrement())
+  cnpj               String     @unique(map: "uk_transportadora_cnpj") @db.Char(14)
+  razao_social       String     @db.VarChar(150)
+  nome_fantasia      String?    @db.VarChar(150)
+  inscricao_estadual String?    @db.VarChar(20)
+  data_cadastro      DateTime   @default(now()) @db.Timestamp(0)
+  ativo              Boolean?   @default(true)
+  contato            contato[]
+  endereco           endereco[]
+  usuario            usuario[]
+}
+
+model usuario {
+  id_user        Int                  @id @default(autoincrement())
+  id_transp      Int?
+  email          String               @unique(map: "uk_usuario_email") @db.VarChar(255)
+  senha          String               @db.VarChar(255)
+  ativo          Boolean?             @default(true)
+  tipo_usuario   usuario_tipo_usuario
+  data_cadastro  DateTime             @default(now()) @db.Timestamp(0)
+  agendamento    agendamento[]
+  transportadora transportadora?      @relation(fields: [id_transp], references: [id_transp], onUpdate: Restrict, map: "fk_usuario_transp")
+
+  @@index([id_transp], map: "fk_usuario_transp")
+}
+
+model agendamento {
+  id_agenda     Int                 @id @default(autoincrement())
+  id_user       Int
+  data_agenda   DateTime            @db.DateTime(0)
+  observacoes   String?             @db.Text
+  status        agendamento_status? @default(PENDENTE)
+  tipo          agendamento_tipo
+  data_cadastro DateTime            @default(now()) @db.Timestamp(0)
+  usuario       usuario             @relation(fields: [id_user], references: [id_user], onDelete: Cascade, onUpdate: Restrict, map: "fk_id_user")
+
+  @@index([id_user], map: "fk_id_user")
+}
+
+enum agendamento_status {
+  PENDENTE
+  CONFIRMADO
+  CANCELADO
+  CONCLUIDO
+}
+
+enum agendamento_tipo {
+  COLETA
+  ENTREGA
+  DEVOLUCAO
+}
+
+enum usuario_tipo_usuario {
+  ADMIN
+  USER
+}
