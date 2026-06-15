@@ -1,4 +1,4 @@
-import { useState, useEffect, type ReactNode } from "react";
+import { useState, useEffect, useCallback, type ReactNode } from "react";
 import { setLogout } from "@/services/auth-service";
 import { useNavigate } from "react-router-dom";
 import { AuthContext } from "./AuthContext";
@@ -14,17 +14,20 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setLoading(false);
   }, []);
 
-  const login = (newToken: string) => {
-    localStorage.setItem("token", newToken);
-    setToken(newToken);
-    navigate("/");
-  };
+  const login = useCallback(
+    (newToken: string) => {
+      localStorage.setItem("token", newToken);
+      setToken(newToken);
+      navigate("/");
+    },
+    [navigate],
+  );
 
-  const logout = () => {
+  const logout = useCallback(() => {
     localStorage.removeItem("token");
     setToken(null);
     navigate("/login", { replace: true });
-  };
+  }, [navigate]);
 
   useEffect(() => {
     setLogout(logout);
