@@ -1,4 +1,4 @@
-import { LuTrash } from "react-icons/lu";
+import { LuX } from "react-icons/lu";
 import { Button } from "@chakra-ui/react";
 import { useCancelAgenda } from "@/hooks/agenda-query/useAgendaQuery";
 import { useState } from "react";
@@ -22,9 +22,10 @@ export default function BtnCancelAgendamento({
         size="xs"
         variant="ghost"
         disabled={isCancelled}
+        title={isCancelled ? "Agendamento cancelado" : "Cancelar agendamento"}
         onClick={() => setOpen(true)}
       >
-        <LuTrash color="red" />
+        <LuX color="red" />
       </Button>
 
       {open && (

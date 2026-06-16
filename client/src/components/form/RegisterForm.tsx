@@ -25,6 +25,7 @@ export interface FormCadastroData {
   };
   enderecoDTO: {
     cep: string;
+    logradouro: string;
     bairro: string;
     numero?: string;
     complemento?: string;
@@ -34,9 +35,11 @@ export interface FormCadastroData {
 }
 
 interface FormCadastroProps {
-  onSubmit: (data: FormCadastroData) => any;
+  onSubmit: (data: FormCadastroData) => Promise<void> | void;
   loading?: boolean;
 }
+
+const MSG_OBRIGATORIO = "Campo obrigatório";
 
 export function FormCadastro({ onSubmit, loading }: FormCadastroProps) {
   const {
@@ -49,21 +52,18 @@ export function FormCadastro({ onSubmit, loading }: FormCadastroProps) {
     formState: { errors },
   } = useForm<FormCadastroData>({
     mode: "onChange",
-    reValidateMode: "onChange",
   });
+  const buscarCEP = async (rawCep: string, formattedCep: string) => {
+    if (rawCep.length !== 8) return;
 
-  const msgErro = "Campo obrigatório";
-
-  const buscarCEP = async (cep: string) => {
-    const cleanCep = cep.replace(/\D/g, "");
-    if (cleanCep.length !== 8) return;
-
-    if (!!errors.enderecoDTO?.cep) {
+    if (errors.enderecoDTO?.cep) {
       clearErrors("enderecoDTO.cep");
     }
 
     try {
-      const response = await fetch(`https://viacep.com.br/ws/${cep}/json/`);
+      const response = await fetch(
+        `https://viacep.com.br/ws/${formattedCep}/json/`,
+      );
       const data = await response.json();
 
       if (data.erro) {
@@ -71,19 +71,18 @@ export function FormCadastro({ onSubmit, loading }: FormCadastroProps) {
           type: "validate",
           message: "CEP não encontrado",
         });
-        return null;
+        return;
       }
 
-      setValue("enderecoDTO.estado", data.uf);
-      setValue("enderecoDTO.cidade", data.localidade);
-      setValue("enderecoDTO.bairro", data.logradouro);
-    } catch {
-      return null;
-    }
+      setValue("enderecoDTO.logradouro", data.logradouro ?? "");
+      setValue("enderecoDTO.bairro", data.bairro ?? "");
+      setValue("enderecoDTO.cidade", data.localidade ?? "");
+      setValue("enderecoDTO.estado", data.uf ?? "");
+    } catch {}
   };
 
   return (
-    <form onSubmit={handleSubmit(onSubmit)}>
+    <form onSubmit={handleSubmit(onSubmit)} noValidate>
       <Stack gap={8}>
         <Stack gap={4}>
           <Heading
@@ -94,6 +93,7 @@ export function FormCadastro({ onSubmit, loading }: FormCadastroProps) {
           >
             Dados da Empresa
           </Heading>
+
           <SimpleGrid columns={{ base: 1, md: 2 }} gap={4}>
             <Field.Root
               invalid={!!errors.transportadoraDTO?.razao_social}
@@ -102,8 +102,9 @@ export function FormCadastro({ onSubmit, loading }: FormCadastroProps) {
               <Field.Label>Razão Social</Field.Label>
               <Input
                 placeholder="Nome oficial da empresa"
+                autoComplete="organization"
                 {...register("transportadoraDTO.razao_social", {
-                  required: msgErro,
+                  required: MSG_OBRIGATORIO,
                 })}
               />
               <Field.ErrorText>
@@ -166,17 +167,19 @@ export function FormCadastro({ onSubmit, loading }: FormCadastroProps) {
           >
             Informações de Contato
           </Heading>
+
           <SimpleGrid columns={{ base: 1, md: 2 }} gap={4}>
             <Field.Root invalid={!!errors.contatoDTO?.email} required>
               <Field.Label>E-mail Corporativo</Field.Label>
               <Input
                 type="email"
+                autoComplete="email"
                 placeholder="exemplo@empresa.com"
                 {...register("contatoDTO.email", {
-                  required: msgErro,
+                  required: MSG_OBRIGATORIO,
                   pattern: {
                     value: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
-                    message: "Formato de email inválido",
+                    message: "Formato de e-mail inválido",
                   },
                 })}
               />
@@ -199,7 +202,7 @@ export function FormCadastro({ onSubmit, loading }: FormCadastroProps) {
                     onValueChange={(values) => onChange(values.value)}
                     customInput={Input}
                     placeholder="(00) 00000-0000"
-                    valueIsNumericString={true}
+                    valueIsNumericString
                   />
                 )}
               />
@@ -221,6 +224,7 @@ export function FormCadastro({ onSubmit, loading }: FormCadastroProps) {
           >
             Localização
           </Heading>
+
           <SimpleGrid columns={{ base: 1, md: 12 }} gap={4}>
             <GridItem colSpan={{ base: 1, md: 4 }}>
               <Field.Root invalid={!!errors.enderecoDTO?.cep} required>
@@ -228,14 +232,18 @@ export function FormCadastro({ onSubmit, loading }: FormCadastroProps) {
                 <Controller
                   name="enderecoDTO.cep"
                   control={control}
+                  rules={{ required: MSG_OBRIGATORIO }}
                   render={({ field: { onChange, value, ref } }) => (
                     <PatternFormat
                       format="#####-###"
                       mask="_"
                       value={value}
                       getInputRef={ref}
-                      onValueChange={(values) => onChange(values.value)}
-                      onChange={(e) => buscarCEP(e.target.value)}
+                      autoComplete="postal-code"
+                      onValueChange={(values) => {
+                        onChange(values.value);
+                        buscarCEP(values.value, values.formattedValue);
+                      }}
                       customInput={Input}
                       placeholder="00000-000"
                     />
@@ -252,7 +260,10 @@ export function FormCadastro({ onSubmit, loading }: FormCadastroProps) {
                 <Field.Label>Estado (UF)</Field.Label>
                 <Input
                   placeholder="Ex: PE"
-                  {...register("enderecoDTO.estado", { required: msgErro })}
+                  autoComplete="address-level1"
+                  {...register("enderecoDTO.estado", {
+                    required: MSG_OBRIGATORIO,
+                  })}
                 />
                 <Field.ErrorText>
                   {errors.enderecoDTO?.estado?.message}
@@ -265,7 +276,10 @@ export function FormCadastro({ onSubmit, loading }: FormCadastroProps) {
                 <Field.Label>Cidade</Field.Label>
                 <Input
                   placeholder="Ex: Recife"
-                  {...register("enderecoDTO.cidade", { required: msgErro })}
+                  autoComplete="address-level2"
+                  {...register("enderecoDTO.cidade", {
+                    required: MSG_OBRIGATORIO,
+                  })}
                 />
                 <Field.ErrorText>
                   {errors.enderecoDTO?.cidade?.message}
@@ -274,11 +288,12 @@ export function FormCadastro({ onSubmit, loading }: FormCadastroProps) {
             </GridItem>
 
             <GridItem colSpan={{ base: 1, md: 6 }}>
-              <Field.Root>
+              <Field.Root invalid={!!errors.enderecoDTO?.logradouro}>
                 <Field.Label>Logradouro (Rua/Avenida)</Field.Label>
                 <Input
                   placeholder="Rua, Avenida, Travessa..."
-                  {...register("enderecoDTO.bairro")}
+                  autoComplete="street-address"
+                  {...register("enderecoDTO.logradouro")}
                 />
               </Field.Root>
             </GridItem>
@@ -291,16 +306,23 @@ export function FormCadastro({ onSubmit, loading }: FormCadastroProps) {
             </GridItem>
 
             <GridItem colSpan={{ base: 1, md: 4 }}>
-              <Field.Root invalid={!!errors.enderecoDTO?.complemento}>
+              <Field.Root>
                 <Field.Label>Complemento</Field.Label>
                 <Input
-                  type="text"
                   placeholder="Apto, Bloco, Sala..."
+                  autoComplete="address-line2"
                   {...register("enderecoDTO.complemento")}
                 />
-                <Field.ErrorText>
-                  {errors.enderecoDTO?.complemento?.message}
-                </Field.ErrorText>
+              </Field.Root>
+            </GridItem>
+
+            <GridItem colSpan={{ base: 1, md: 12 }}>
+              <Field.Root>
+                <Field.Label>Bairro</Field.Label>
+                <Input
+                  placeholder="Bairro"
+                  {...register("enderecoDTO.bairro")}
+                />
               </Field.Root>
             </GridItem>
           </SimpleGrid>
@@ -309,10 +331,10 @@ export function FormCadastro({ onSubmit, loading }: FormCadastroProps) {
         <Button
           type="submit"
           size="lg"
-          colorScheme="blue"
+          colorPalette="red"
           mt={4}
           width="full"
-          loadingText="Finalizando cadastro"
+          loadingText="Finalizando cadastro..."
           loading={loading}
           aria-busy={loading}
           fontWeight="bold"

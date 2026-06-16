@@ -61,7 +61,7 @@ export default function Login() {
         p={12}
         direction="column"
         display={{ base: "none", lg: "flex" }}
-        bg={`linear-gradient(rgba(0, 0, 0, 0.35), rgba(0, 0, 0, 0.55)), url(${imgBackground})`}
+        bg={`linear-gradient(to right, rgba(0, 0, 0, 0.55), rgba(0, 0, 0, 0.35)), url(${imgBackground})`}
         bgSize="cover"
         bgPos="center"
       >
