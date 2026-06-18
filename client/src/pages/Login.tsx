@@ -101,7 +101,7 @@ export default function Login() {
             </Text>
           </HStack>
 
-          <Text fontSize="xs" color="whiteAlpha.700">
+          <Text fontSize="xs" color="white/70">
             &copy; {new Date().getFullYear()} LogiSched. Todos os direitos
             reservados.
           </Text>
@@ -183,7 +183,7 @@ export default function Login() {
                 <HStack justify="space-between" w="full">
                   <Field.Label fontWeight="medium">Senha</Field.Label>
                   <ChakraRouterLink
-                    to="/esqueci-senha"
+                    to="/recuperar-senha"
                     fontSize="sm"
                     color="blue.500"
                     fontWeight="medium"
