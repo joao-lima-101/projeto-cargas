@@ -1,13 +1,7 @@
 import { HStack, Text, Box, Container, Badge } from "@chakra-ui/react";
 import MenuHeader from "./HeaderMenu";
 import { useLoadMe } from "@/hooks/user-query/useUserQuery";
-
 import { ColorModeButton } from "../ui/ColorMode";
-
-const badgeColor = {
-  ADMIN: "yellow",
-  USER: "blue",
-};
 
 export default function Header() {
   const { data: userData } = useLoadMe();
@@ -30,16 +24,8 @@ export default function Header() {
           </HStack>
 
           <HStack gap={4}>
-            {userData?.tipo_usuario && (
-              <Badge
-                colorPalette={
-                  badgeColor[
-                    userData.tipo_usuario as keyof typeof badgeColor
-                  ] || "gray"
-                }
-              >
-                {userData.tipo_usuario}
-              </Badge>
+            {userData?.tipo_usuario && userData.tipo_usuario == "ADMIN" && (
+              <Badge colorPalette={"yellow"}>ADMINISTRADOR</Badge>
             )}
             {userData?.email && (
               <Text textStyle="sm" color="fg.muted" fontWeight="medium">

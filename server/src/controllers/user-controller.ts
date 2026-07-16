@@ -40,8 +40,6 @@ export default class UserController {
   cancelUser = async (req: Request, res: Response) => {
     const idUser = Number(req.params.idUser);
 
-    if (req.role !== "ADMIN") throw new Error("Usuário não autorizado");
-
     await this.userService.disableUser(idUser);
 
     return res.status(200).json({ message: "Usuário desativado com sucesso" });
@@ -52,8 +50,7 @@ export default class UserController {
     const data = changeUserPasswordSchema.parse(req.body);
     const adminId = req.idUser;
 
-    if (!adminId || req.role !== "ADMIN")
-      throw new Error("Usuário não autorizado");
+    if (!adminId) throw new Error("Usuário não autorizado");
 
     await this.userService.resetPasswordByAdmin({
       idUser: idUser,

@@ -19,7 +19,6 @@ import validarEmail from "@/utils/validate/email";
 export default function ForgotPassword() {
   const [email, setEmail] = useState("");
   const [error, setError] = useState("");
-  const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
   const handleEmailChange = (value: string) => {

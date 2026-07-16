@@ -18,11 +18,15 @@ export default function TranspCreateDialog({
   };
 
   return (
-    <Dialog.Root size="cover" open={open} onOpenChange={onOpenChange}>
+    <Dialog.Root
+      size={{ base: "full", md: "cover" }}
+      open={open}
+      onOpenChange={onOpenChange}
+    >
       <Portal>
         <Dialog.Backdrop />
         <Dialog.Positioner>
-          <Dialog.Content>
+          <Dialog.Content display="flex" flexDir="column" maxH="100vh">
             <Dialog.Header
               bg="bg.muted"
               py={4}
@@ -32,7 +36,7 @@ export default function TranspCreateDialog({
             >
               <Dialog.Title>Cadastrar transportadora</Dialog.Title>
             </Dialog.Header>
-            <Dialog.Body>
+            <Dialog.Body flex="1" overflowY="auto">
               <FormCadastro onSubmit={onSubmit} loading={isPending} />
             </Dialog.Body>
             <Dialog.CloseTrigger asChild>
