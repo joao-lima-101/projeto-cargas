@@ -8,6 +8,6 @@ export default function roleMiddleware(permittedRoles: string[]) {
     if (!permittedRoles.includes(req.role))
       return res.status(403).json({ message: "Sem permissão" });
 
-    return next;
+    return next();
   };
 }
