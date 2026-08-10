@@ -21,6 +21,12 @@ export default class AgendamentoService {
         tipo: true,
         status: true,
         observacoes: true,
+        usuario: {
+          select: {
+            id_user: true,
+            email: true,
+          },
+        },
       },
     });
 
@@ -35,10 +41,14 @@ export default class AgendamentoService {
         tipo: true,
         status: true,
         observacoes: true,
+        usuario: {
+          select: {
+            id_user: true,
+            email: true,
+          },
+        },
       },
     });
-
-    console.log("testandoo", user);
 
     return user;
   };

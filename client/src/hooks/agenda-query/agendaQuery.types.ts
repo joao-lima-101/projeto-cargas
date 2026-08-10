@@ -4,6 +4,10 @@ export interface LoadAgendamento {
   status: "PENDENTE" | "CONFIRMADO" | "CANCELADO" | "CONCLUIDO";
   tipo: "COLETA" | "ENTREGA" | "DEVOLUCAO";
   observacoes?: string;
+  usuario: {
+    id_user: number;
+    email: string;
+  };
 }
 
 export interface AgendamentoRequestDTO {

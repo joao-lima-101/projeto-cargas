@@ -11,6 +11,7 @@ import {
   Heading,
   Box,
   InputGroup,
+  VStack,
   Flex,
 } from "@chakra-ui/react";
 import { LuSearch, LuCalendarX, LuInfo } from "react-icons/lu";
@@ -22,16 +23,9 @@ import BtnCancelAgendamento from "@/components/button/CancelAgendaButton";
 import Highlight from "@/components/ui/Highlight";
 import NoResults from "@/components/EmptyState";
 import { useLoadMe } from "@/hooks/user-query/useUserQuery";
+import type { LoadAgendamento } from "@/hooks/agenda-query/agendaQuery.types";
 
-interface Agendamento {
-  id_agenda: number;
-  data_agenda: string;
-  tipo: string;
-  status: "PENDENTE" | "CONFIRMADO" | "CANCELADO" | "CONCLUIDO";
-  observacoes?: string;
-}
-
-const BADGE_COLOR: Record<Agendamento["status"], string> = {
+const BADGE_COLOR: Record<LoadAgendamento["status"], string> = {
   PENDENTE: "yellow",
   CONFIRMADO: "green",
   CANCELADO: "red",
@@ -193,7 +187,7 @@ export default function Dashboard() {
 
     const search = pesquisa.toLowerCase();
 
-    return data.filter((item: Agendamento) =>
+    return data.filter((item: LoadAgendamento) =>
       Object.values(item).some((val) =>
         val?.toString().toLowerCase().includes(search),
       ),
@@ -277,28 +271,28 @@ export default function Dashboard() {
                 <Table.Root size="md" interactive>
                   <Table.Header bg="bg.muted">
                     <Table.Row>
-                      <Table.ColumnHeader width="10%">ID</Table.ColumnHeader>
-                      <Table.ColumnHeader width="25%">
+                      <Table.ColumnHeader>ID</Table.ColumnHeader>
+                      <Table.ColumnHeader>
+                        ID / E-mail do usuário
+                      </Table.ColumnHeader>
+                      <Table.ColumnHeader>
                         Data do Agendamento
                       </Table.ColumnHeader>
-                      <Table.ColumnHeader width="20%">Tipo</Table.ColumnHeader>
-                      <Table.ColumnHeader width="15%">
-                        Status
-                      </Table.ColumnHeader>
+                      <Table.ColumnHeader>Tipo</Table.ColumnHeader>
+                      <Table.ColumnHeader>Status</Table.ColumnHeader>
                       <Table.ColumnHeader
-                        width="20%"
                         display={{ base: "none", md: "table-cell" }}
                       >
                         Observações
                       </Table.ColumnHeader>
-                      <Table.ColumnHeader width="10%" textAlign="end">
+                      <Table.ColumnHeader textAlign="end">
                         Ações
                       </Table.ColumnHeader>
                     </Table.Row>
                   </Table.Header>
 
                   <Table.Body>
-                    {dataFilter.map((item: Agendamento, i: number) => (
+                    {dataFilter.map((item: LoadAgendamento, i: number) => (
                       <Table.Row
                         key={item.id_agenda ?? i}
                         _hover={{ bg: "bg.subtle/50" }}
@@ -308,6 +302,19 @@ export default function Dashboard() {
                           pesquisa={pesquisa}
                           status={item.status}
                         />
+                        <Table.Cell textAlign="center">
+                          <VStack
+                            gap={1}
+                            opacity={item.status == "CANCELADO" ? 0.5 : 1}
+                          >
+                            <Text fontWeight="medium">
+                              {item.usuario.id_user}
+                            </Text>
+                            <Text fontSize="small" color="gray.300">
+                              {item.usuario.email}
+                            </Text>
+                          </VStack>
+                        </Table.Cell>
                         <RenderCell
                           text={item.data_agenda}
                           pesquisa={pesquisa}
