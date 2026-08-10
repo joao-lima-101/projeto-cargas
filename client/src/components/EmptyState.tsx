@@ -19,7 +19,7 @@ export default function SemResultados({
       borderWidth="1px"
       borderStyle="dashed"
     >
-      <VStack gap={3} textStyle="center">
+      <VStack gap={3} p={5} textStyle="center">
         <Box
           p={3}
           bg="bg.panel"

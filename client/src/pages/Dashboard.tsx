@@ -20,7 +20,8 @@ import { useLoadAgenda } from "@/hooks/agenda-query/useAgendaQuery";
 import BtnCreateAgendamento from "@/components/button/CreateAgendaButton";
 import BtnCancelAgendamento from "@/components/button/CancelAgendaButton";
 import Highlight from "@/components/ui/Highlight";
-import SemResultados from "@/components/EmptyState";
+import NoResults from "@/components/EmptyState";
+import { useLoadMe } from "@/hooks/user-query/useUserQuery";
 
 interface Agendamento {
   id_agenda: number;
@@ -171,7 +172,10 @@ const MetricCard = ({ label, value, colorPalette }: MetricCardProps) => {
 };
 
 export default function Dashboard() {
-  const { data = [] } = useLoadAgenda();
+  const { data: userData, isLoading: isLoadingUser } = useLoadMe();
+  const isAdmin = !isLoadingUser && userData?.tipo_usuario === "ADMIN";
+  const { data = [] } = useLoadAgenda(isAdmin, !isLoadingUser);
+
   const [pesquisa, setPesquisa] = useState("");
 
   const metrics = useMemo(
@@ -361,7 +365,7 @@ export default function Dashboard() {
               py={20}
               gap={3}
             >
-              <SemResultados
+              <NoResults
                 Icon={<LuCalendarX size={32} />}
                 label="Nenhum agendamento encontrado"
                 desc={

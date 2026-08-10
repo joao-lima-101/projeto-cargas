@@ -27,6 +27,11 @@ export default class AgendamentoController {
     return res.status(200).json({ agendamento: response });
   };
 
+  loadAllAgendamento = async (_req: Request, res: Response) => {
+    const response = await this.agendamentoService.loadAll();
+    return res.status(200).json({ agendamento: response });
+  };
+
   cancelAgendamento = async (req: Request, res: Response) => {
     const idAgenda = Number(req.params.idAgenda);
 

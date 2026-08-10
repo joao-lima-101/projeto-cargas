@@ -10,10 +10,11 @@ import type {
   LoadAgendamento,
 } from "./agendaQuery.types";
 
-const fetchAgendamentos = async () => {
-  const response = await api.get("/agendamento/load");
+const fetchAgenda = async (isAdmin: boolean) => {
+  const endpoint = isAdmin ? "/agendamento/load-all" : "/agendamento/load";
+  const response = await api.get<{ agendamento: LoadAgendamento[] }>(endpoint);
 
-  const data: LoadAgendamento[] = response.data.agendamento;
+  const data = response.data.agendamento;
 
   return data.map((item) => ({
     ...item,
@@ -21,13 +22,13 @@ const fetchAgendamentos = async () => {
   }));
 };
 
-export function useLoadAgenda() {
+export function useLoadAgenda(isAdmin: boolean, isLoadedUser?: boolean) {
   const { token, loading } = useAuth();
 
   return useQuery<LoadAgendamento[]>({
-    queryKey: ["agendamentos", token],
-    queryFn: () => fetchAgendamentos(),
-    enabled: !!token && !loading,
+    queryKey: ["agendamentos", token, isAdmin],
+    queryFn: () => fetchAgenda(isAdmin),
+    enabled: !!token && !loading && isLoadedUser,
   });
 }
 

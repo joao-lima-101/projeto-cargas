@@ -27,6 +27,22 @@ export default class AgendamentoService {
     return user;
   };
 
+  loadAll = async () => {
+    const user = await this.prisma.agendamento.findMany({
+      select: {
+        id_agenda: true,
+        data_agenda: true,
+        tipo: true,
+        status: true,
+        observacoes: true,
+      },
+    });
+
+    console.log("testandoo", user);
+
+    return user;
+  };
+
   cancel = async (idAgenda: number) => {
     return await this.prisma.agendamento.update({
       where: { id_agenda: idAgenda },
