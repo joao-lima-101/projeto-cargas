@@ -19,12 +19,12 @@ const fetchMe = async () => {
 };
 
 export function useLoadMe() {
-  const { token, loading } = useAuth();
+  const { loading } = useAuth();
 
   return useQuery<LoadUser>({
-    queryKey: ["me", token],
+    queryKey: ["me"],
     queryFn: () => fetchMe(),
-    enabled: !!token && !loading,
+    enabled: !loading,
   });
 }
 

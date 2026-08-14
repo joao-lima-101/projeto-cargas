@@ -14,7 +14,9 @@ export default function TranspCreateDialog({
   const { mutate: createTransportadora, isPending } = useCreateTransp();
 
   const onSubmit = async (data: FormCadastroData) => {
-    createTransportadora(data);
+    createTransportadora(data, {
+      onSuccess: () => onOpenChange({ open: false }),
+    });
   };
 
   return (

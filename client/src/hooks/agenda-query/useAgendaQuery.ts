@@ -23,12 +23,12 @@ const fetchAgenda = async (isAdmin: boolean) => {
 };
 
 export function useLoadAgenda(isAdmin: boolean, isLoadedUser?: boolean) {
-  const { token, loading } = useAuth();
+  const { loading } = useAuth();
 
   return useQuery<LoadAgendamento[]>({
-    queryKey: ["agendamentos", token, isAdmin],
+    queryKey: ["agendamentos", isAdmin],
     queryFn: () => fetchAgenda(isAdmin),
-    enabled: !!token && !loading && isLoadedUser,
+    enabled: !loading && isLoadedUser,
   });
 }
 

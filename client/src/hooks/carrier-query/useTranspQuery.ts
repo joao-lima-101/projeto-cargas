@@ -23,12 +23,12 @@ const loadTransp = async () => {
 };
 
 export function useLoadTransp() {
-  const { token, loading } = useAuth();
+  const { loading } = useAuth();
 
   return useQuery<LoadTransp[]>({
-    queryKey: ["transportadoras", token],
+    queryKey: ["transportadoras"],
     queryFn: () => loadTransp(),
-    enabled: !!token && !loading,
+    enabled: !loading,
   });
 }
 

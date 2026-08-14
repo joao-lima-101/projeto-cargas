@@ -19,7 +19,6 @@ import axios from "axios";
 import useAuth from "@/hooks/useAuth";
 import validarEmail from "@/utils/validate/email";
 import errorMessage from "@/utils/notification/error";
-import successMessage from "@/utils/notification/success";
 import imgBackground from "@/assets/trucks.webp";
 
 interface LoginRequestDTO {
@@ -39,13 +38,10 @@ export default function Login() {
 
   const onSubmit = async (data: LoginRequestDTO) => {
     try {
-      const response = await axios.post(
-        `${import.meta.env.VITE_API_URL}/auth/login`,
-        data,
-      );
-
-      successMessage("Login efetuado com sucesso");
-      login(response.data.token);
+      await axios.post(`${import.meta.env.VITE_API_URL}/auth/login`, data, {
+        withCredentials: true,
+      });
+      login();
     } catch (error: unknown) {
       errorMessage(error);
     }

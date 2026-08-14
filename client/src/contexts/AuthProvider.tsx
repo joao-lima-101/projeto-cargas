@@ -2,31 +2,42 @@ import { useState, useEffect, useCallback, type ReactNode } from "react";
 import { setLogout } from "@/services/auth-service";
 import { useNavigate } from "react-router-dom";
 import { AuthContext } from "./AuthContext";
+import api from "@/services/api";
 
 export function AuthProvider({ children }: { children: ReactNode }) {
   const navigate = useNavigate();
-  const [token, setToken] = useState<string | null>(null);
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const storedToken = localStorage.getItem("token");
-    if (storedToken) setToken(storedToken);
-    setLoading(false);
+    const checkAuth = async () => {
+      try {
+        await api.get("/usuario/me");
+        setIsAuthenticated(true);
+      } catch {
+        setIsAuthenticated(false);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    checkAuth();
   }, []);
 
-  const login = useCallback(
-    (newToken: string) => {
-      localStorage.setItem("token", newToken);
-      setToken(newToken);
-      navigate("/");
-    },
-    [navigate],
-  );
+  const login = useCallback(() => {
+    setIsAuthenticated(true);
+    navigate("/");
+  }, [navigate]);
 
-  const logout = useCallback(() => {
-    localStorage.removeItem("token");
-    setToken(null);
-    navigate("/login", { replace: true });
+  const logout = useCallback(async () => {
+    try {
+      await api.post("/auth/logout");
+    } catch (error) {
+      console.error("Erro no logout: ", error);
+    } finally {
+      setIsAuthenticated(false);
+      navigate("/login", { replace: true });
+    }
   }, [navigate]);
 
   useEffect(() => {
@@ -36,8 +47,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   return (
     <AuthContext.Provider
       value={{
-        token,
-        isAuthenticated: !!token,
+        isAuthenticated,
         loading,
         login,
         logout,

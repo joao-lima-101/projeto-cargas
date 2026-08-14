@@ -1,10 +1,9 @@
 import { createContext } from "react";
 
 interface AuthContextData {
-  token: string | null;
   isAuthenticated: boolean;
   loading: boolean;
-  login: (token: string) => void;
+  login: () => void;
   logout: () => void;
 }
 
