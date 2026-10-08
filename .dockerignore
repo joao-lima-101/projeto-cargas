@@ -1,0 +1,12 @@
+.env
+.env.*
+client/node_modules
+server/node_modules
+client/dist
+server/dist
+client/.git
+server/.git
+client/.env
+server/.env
+.gitignore
+.env
